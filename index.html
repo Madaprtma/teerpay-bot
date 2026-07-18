@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TeerPay</title>
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAxOTg0IDE5ODQiPgo8cmVjdCB4PSIwIiB5PSIwIiB3aWR0aD0iMTk4NCIgaGVpZ2h0PSIxOTg0IiByeD0iMjIwIiBmaWxsPSJibGFjayIvPgo8cG9seWdvbiBwb2ludHM9IjM3MCw3NTkgMTAxNSwxMzQyIDM2OCwxMzQzIDM2OCwxNTI3IDE1NTAsMTUyNyAxNTUwLDEzNDMgMTI5MSwxMzQzIDY0NSw3NTkiIGZpbGw9IndoaXRlIi8+Cjxwb2x5Z29uIHBvaW50cz0iNDMzLDQ1NSA0MzMsNjM5IDY5Miw2NDAgMTMzOSwxMjI0IDE2MTMsMTIyNCA5NjcsNjQwIDE2MTQsNjM5IDE2MTQsNDU1IiBmaWxsPSJ3aGl0ZSIvPgo8L3N2Zz4=" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=Poppins:wght@500&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #f0f7ff;
+      --bg2:       #e8f4ff;
+      --surface:   rgba(255,255,255,0.85);
+      --surface2:  #f0f7ff;
+      --surface3:  #e0eefb;
+      --border:    #bfdbfe;
+      --border2:   #93c5fd;
+      --accent:    #2563eb;
+      --accent2:   #0ea5e9;
+      --accentg:   linear-gradient(135deg,#2563eb,#0ea5e9);
+      --green:     #16a34a;
+      --green-bg:  rgba(22,163,74,0.1);
+      --amber:     #d97706;
+      --red:       #dc2626;
+      --text:      #1e293b;
+      --text2:     #64748b;
+      --text3:     #94a3b8;
+      --mono:      'DM Mono', monospace;
+      --head:      'Syne', sans-serif;
+      --body:      'Inter', sans-serif;
+      --r:         10px;
+      --r2:        14px;
+    }
+
+    body {
+      background: linear-gradient(135deg, #ffffff 0%, #e8f4ff 50%, #dbeeff 100%);
+      background-attachment: fixed;
+      color: var(--text);
+      font-family: var(--body);
+      font-size: 14px;
+      line-height: 1.6;
+      min-height: 100vh;
+    }
+
+    /* NAV */
+    nav {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 2rem; height: 60px;
+      background: rgba(255,255,255,0.75); backdrop-filter: blur(16px);
+      border-bottom: 1px solid var(--border);
+      position: sticky; top: 0; z-index: 100;
+    }
+    .logo-wrap { display: flex; align-items: center; gap: 10px; }
+    .logo-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      background: #000;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .font-poppins { font-family: 'Poppins', sans-serif !important; font-weight: 500 !important; }
+    .logo-text { font-family: var(--head); font-size: 1.15rem; font-weight: 800; color: var(--text); letter-spacing: -0.02em; }
+    .logo-text span { color: var(--accent); }
+    .nav-center { display: flex; gap: 2rem; }
+    .nav-link { font-size: 13px; color: var(--text2); text-decoration: none; cursor: pointer; transition: color .15s; }
+    .nav-link:hover, .nav-link.active { color: var(--text); }
+    .nav-right { display: flex; align-items: center; gap: 10px; }
+    .badge-net {
+      font-size: 11px; font-weight: 500; font-family: var(--mono);
+      background: #dbeafe; color: var(--accent);
+      border: 1px solid #93c5fd;
+      padding: 3px 10px; border-radius: 20px;
+    }
+    #connectBtn {
+      background: var(--accentg); color: #fff; border: none;
+      padding: 7px 16px; border-radius: var(--r);
+      font-family: var(--body); font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: opacity .15s;
+    }
+    #connectBtn:hover { opacity: .85; }
+    #walletInfo {
+      display: none; align-items: center; gap: 8px;
+      background: #fff; border: 1px solid var(--border);
+      padding: 5px 12px; border-radius: var(--r); font-size: 13px; font-family: var(--mono);
+    }
+    .live-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); animation: pulse 2s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1 } 50% { opacity:.4 } }
+
+    /* HERO */
+    .hero {
+      max-width: 760px; margin: 0 auto; padding: 5rem 2rem 3rem;
+      text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 11px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase;
+      color: var(--accent2); margin-bottom: 1.5rem;
+      border: 1px solid #93c5fd; padding: 4px 12px; border-radius: 20px;
+      background: #dbeafe;
+    }
+    .hero h1 {
+      font-family: var(--head); font-size: clamp(2.4rem,5vw,3.8rem);
+      font-weight: 800; line-height: 1.08; letter-spacing: -0.03em;
+      margin-bottom: 1.25rem; color: var(--text);
+    }
+    .hero h1 .grad {
+      background: var(--accentg); -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent; background-clip: text;
+    }
+    .hero-sub { color: var(--text2); font-size: 1rem; max-width: 440px; margin: 0 auto 2rem; line-height: 1.7; }
+    .hero-pills { display: flex; gap: 8px; justify-content: center; flex-wrap: wrap; }
+    .pill {
+      font-size: 12px; color: var(--text2);
+      background: rgba(255,255,255,0.8); border: 1px solid var(--border);
+      padding: 5px 14px; border-radius: 20px;
+    }
+    .pill strong { color: var(--text); }
+
+    /* STATS */
+    .stats-row {
+      display: grid; grid-template-columns: repeat(4,1fr); gap: 1px;
+      background: var(--border); border: 1px solid var(--border);
+      border-radius: var(--r2); overflow: hidden;
+      max-width: 900px; margin: 0 auto 3rem;
+    }
+    .stat-cell { background: rgba(255,255,255,0.85); padding: 1.25rem 1.5rem; }
+    .stat-cell-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 6px; }
+    .stat-cell-val { font-family: var(--head); font-size: 1.8rem; font-weight: 800; letter-spacing: -0.02em; color: var(--text); }
+    .stat-cell-val.blue { color: var(--accent); }
+    .stat-cell-val.green { color: var(--green); }
+    .stat-cell-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+
+    /* MAIN GRID */
+    .app-grid {
+      display: grid; grid-template-columns: 420px 1fr;
+      gap: 20px; max-width: 1100px; margin: 0 auto;
+      padding: 0 2rem 4rem;
+    }
+
+    /* PANEL */
+    .panel {
+      background: rgba(255,255,255,0.85); border: 1px solid var(--border);
+      border-radius: var(--r2); overflow: hidden;
+      backdrop-filter: blur(8px);
+    }
+    .panel-header {
+      display: flex; align-items: center; gap: 10px;
+      padding: 1rem 1.25rem; border-bottom: 1px solid var(--border);
+    }
+    .panel-icon {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: #dbeafe;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px;
+    }
+    .panel-title { font-size: 13px; font-weight: 600; color: var(--text); }
+    .panel-body { padding: 1.25rem; }
+
+    /* CORRIDORS */
+    .corridor-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 1.25rem; }
+    .corridor-btn {
+      display: flex; align-items: center; gap: 8px;
+      background: #f0f7ff; border: 1px solid var(--border);
+      border-radius: var(--r); padding: 9px 11px;
+      cursor: pointer; transition: border-color .15s, background .15s;
+      text-align: left;
+    }
+    .corridor-btn:hover { border-color: var(--border2); background: #e0eefb; }
+    .corridor-btn.active { border-color: var(--accent); background: #dbeafe; }
+    .corridor-flag { font-size: 1.3rem; flex-shrink: 0; }
+    .corridor-info { min-width: 0; }
+    .corridor-country { font-size: 12px; font-weight: 600; color: var(--text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .corridor-currency { font-size: 10px; color: var(--accent); font-family: var(--mono); }
+
+    /* FORM */
+    .form-row { margin-bottom: 1rem; }
+    .form-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: .06em; color: var(--text3); margin-bottom: 6px; display: block; }
+    .input-wrap { position: relative; }
+    .form-input {
+      width: 100%; background: #f0f7ff; border: 1px solid var(--border);
+      color: var(--text); padding: 10px 12px; border-radius: var(--r);
+      font-family: var(--body); font-size: 14px; outline: none;
+      transition: border-color .15s;
+    }
+    .form-input:focus { border-color: var(--accent); }
+    .input-suffix {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      font-size: 12px; font-weight: 600; font-family: var(--mono); color: var(--accent2);
+    }
+    .to-addr {
+      font-family: var(--mono); font-size: 11px;
+      color: var(--text3); background: #f0f7ff;
+      border: 1px solid var(--border); border-radius: var(--r);
+      padding: 8px 12px; margin-bottom: 1rem;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+    .send-btn {
+      width: 100%; padding: 13px;
+      background: var(--accentg); color: #fff; border: none;
+      border-radius: var(--r); font-family: var(--head); font-size: 15px;
+      font-weight: 700; letter-spacing: -0.01em;
+      cursor: pointer; transition: opacity .15s; margin-top: 4px;
+    }
+    .send-btn:hover { opacity: .88; }
+    .send-btn:disabled { opacity: .35; cursor: not-allowed; }
+
+    /* STATUS */
+    #statusBox, #akStatusBox {
+      display: none; margin-top: .85rem; padding: 11px 14px;
+      border-radius: var(--r); font-size: 13px; line-height: 1.5;
+    }
+    #statusBox.info, #akStatusBox.info       { background: #dbeafe; border: 1px solid #93c5fd; color: #1d4ed8; }
+    #statusBox.success, #akStatusBox.success { background: #dcfce7; border: 1px solid #86efac; color: #15803d; }
+    #statusBox.error, #akStatusBox.error     { background: #fee2e2; border: 1px solid #fca5a5; color: #b91c1c; }
+    #statusBox a, #akStatusBox a { color: inherit; text-decoration: underline; }
+
+    /* RIGHT COLUMN */
+    .right-col { display: flex; flex-direction: column; gap: 16px; }
+
+    /* CONTRACT CARD */
+    .info-table { width: 100%; }
+    .info-tr { display: flex; justify-content: space-between; align-items: center; padding: 8px 0; border-bottom: 1px solid var(--border); }
+    .info-tr:last-child { border-bottom: none; }
+    .info-key { font-size: 12px; color: var(--text3); }
+    .info-val { font-size: 12px; font-weight: 500; color: var(--text); }
+    .info-val.mono { font-family: var(--mono); color: var(--accent); font-size: 11px; }
+    .info-val.green { color: var(--green); }
+    .badge-verified {
+      display: inline-flex; align-items: center; gap: 4px;
+      font-size: 11px; background: var(--green-bg); color: var(--green);
+      border: 1px solid rgba(22,163,74,.2); padding: 2px 8px; border-radius: 20px;
+    }
+    .copy-btn { background: none; border: none; cursor: pointer; color: var(--text3); font-size: 11px; margin-left: 6px; font-family: var(--mono); }
+    .copy-btn:hover { color: var(--accent); }
+
+    /* TX LIST */
+    .tx-empty { text-align: center; padding: 2rem 1rem; color: var(--text3); font-size: 13px; }
+    .tx-item {
+      display: flex; align-items: center; gap: 10px;
+      padding: 10px 0; border-bottom: 1px solid var(--border);
+    }
+    .tx-item:last-child { border-bottom: none; }
+    .tx-flag { font-size: 1.3rem; flex-shrink: 0; }
+    .tx-mid { flex: 1; min-width: 0; }
+    .tx-country { font-size: 13px; font-weight: 600; color: var(--text); }
+    .tx-memo { font-size: 11px; color: var(--text3); font-family: var(--mono); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .tx-right { text-align: right; flex-shrink: 0; }
+    .tx-amount { font-size: 13px; font-weight: 600; color: var(--accent2); font-family: var(--mono); }
+    .tx-link { font-size: 11px; color: var(--text3); text-decoration: none; }
+    .tx-link:hover { color: var(--accent); }
+
+    /* FLOW STEPS */
+    .steps { display: flex; flex-direction: column; gap: 0; }
+    .step { display: flex; gap: 12px; padding: 12px 0; position: relative; }
+    .step:not(:last-child)::after { content:''; position: absolute; left: 15px; top: 36px; bottom: 0; width: 1px; background: var(--border); }
+    .step-num {
+      width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+      background: #f0f7ff; border: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 600; color: var(--text2); z-index: 1;
+    }
+    .step-num.done { background: var(--green-bg); border-color: rgba(22,163,74,.3); color: var(--green); }
+    .step-content { flex: 1; }
+    .step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+    .step-desc { font-size: 12px; color: var(--text3); }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid var(--border); padding: 2rem;
+      text-align: center; color: var(--text3); font-size: 12px;
+      background: rgba(255,255,255,0.6);
+    }
+    footer a { color: var(--accent); text-decoration: none; }
+
+    @media (max-width: 820px) {
+      .app-grid { grid-template-columns: 1fr; padding: 0 1rem 3rem; }
+      .stats-row { grid-template-columns: repeat(2,1fr); }
+      .nav-center { display: none; }
+      nav { padding: 0 1rem; }
+      .hero { padding: 3rem 1rem 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="logo-wrap">
+    <div class="logo-icon">
+      <svg width="20" height="20" viewBox="0 0 1984 1984" fill="none">
+        <polygon points="370,759 1015,1342 368,1343 368,1527 1550,1527 1550,1343 1291,1343 645,759" fill="white"/>
+        <polygon points="433,455 433,639 692,640 1339,1224 1613,1224 967,640 1614,639 1614,455" fill="white"/>
+      </svg>
+    </div>
+    <span class="logo-text font-poppins">Teer<span>Pay</span></span>
+  </div>
+  <div class="nav-center">
+    <span class="nav-link active">Send</span>
+    <span class="nav-link" onclick="scrollToHistory()">History</span>
+    <span class="nav-link" onclick="scrollToContract()">Contract</span>
+  </div>
+  <div class="nav-right">
+    <span class="badge-net">Arc Testnet · 5042002</span>
+    <button id="connectBtn" onclick="connectWallet()">Connect wallet</button>
+    <div id="walletInfo">
+      <div class="live-dot"></div>
+      <span id="walletAddr">—</span>
+      <span style="color:var(--accent2);margin-left:4px;" id="walletBal">—</span>
+    </div>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-eyebrow">⬡ Powered by Arc Testnet</div>
+  <h1 class="font-poppins">Send USDC across borders,<br><span class="grad">instantly.</span></h1>
+  <p class="hero-sub">TeerPay is a decentralized remittance protocol on Arc. No KYC, near-zero fees, every transfer stored permanently on-chain.</p>
+  <div class="hero-pills">
+    <div class="pill"><strong>~0.001 USDC</strong> per transfer</div>
+    <div class="pill"><strong>&lt; 1 sec</strong> confirmation</div>
+    <div class="pill"><strong>No KYC</strong> required</div>
+    <div class="pill"><strong>On-chain</strong> memo</div>
+  </div>
+</div>
+
+<div class="stats-row">
+  <div class="stat-cell">
+    <div class="stat-cell-label">Total transfers</div>
+    <div class="stat-cell-val blue font-poppins" id="statTxCount">—</div>
+    <div class="stat-cell-sub">on-chain txns</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-label">Volume sent</div>
+    <div class="stat-cell-val font-poppins" id="statVolume">—</div>
+    <div class="stat-cell-sub">USDC total</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-label">Corridors</div>
+    <div class="stat-cell-val green font-poppins">5</div>
+    <div class="stat-cell-sub">countries supported</div>
+  </div>
+  <div class="stat-cell">
+    <div class="stat-cell-label">Contract status</div>
+    <div class="stat-cell-val green font-poppins" id="statStatus">Active</div>
+    <div class="stat-cell-sub">verified on ArcScan</div>
+  </div>
+</div>
+
+<div class="app-grid">
+
+  <!-- LEFT: SEND -->
+  <div>
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon">🌏</div>
+        <span class="panel-title">Send remittance</span>
+      </div>
+      <div class="panel-body">
+        <div class="form-row">
+          <label class="form-label">Select corridor</label>
+          <div class="corridor-grid" id="corridorGrid"></div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label">Recipient</label>
+          <div class="to-addr" id="toAddrDisplay">Select a corridor above</div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="amountInput">Amount</label>
+          <div class="input-wrap">
+            <input class="form-input" type="number" id="amountInput" value="0.01" min="0.01" max="100" step="0.01" style="padding-right:54px;" />
+            <span class="input-suffix">USDC</span>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label class="form-label" for="memoInput">Memo <span style="color:var(--text3);text-transform:none;letter-spacing:0;">(optional — stored on-chain)</span></label>
+          <input class="form-input" type="text" id="memoInput" placeholder="e.g. monthly family transfer" maxlength="80" />
+        </div>
+
+        <button class="send-btn" id="sendBtn" onclick="sendRemittance()" disabled>Connect wallet to send</button>
+        <div id="statusBox"></div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-header">
+        <div class="panel-icon">⚡</div>
+        <span class="panel-title">How it works</span>
+      </div>
+      <div class="panel-body">
+        <div class="steps">
+          <div class="step">
+            <div class="step-num done">1</div>
+            <div class="step-content">
+              <div class="step-title">Connect MetaMask</div>
+              <div class="step-desc">Auto-switches to Arc Testnet (Chain ID 5042002)</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num done">2</div>
+            <div class="step-content">
+              <div class="step-title">Choose corridor & amount</div>
+              <div class="step-desc">Select destination country and USDC amount</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-content">
+              <div class="step-title">Approve USDC (once)</div>
+              <div class="step-desc">One-time MetaMask approval for the TeerPay contract</div>
+            </div>
+          </div>
+          <div class="step">
+            <div class="step-num">4</div>
+            <div class="step-content">
+              <div class="step-title">Confirm transfer</div>
+              <div class="step-desc">sendRemittance() emits on-chain event — confirmed in &lt;1s</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK SEND (APP KIT) -->
+    <div class="panel" style="margin-top:16px;">
+      <div class="panel-header">
+        <div class="panel-icon">🧩</div>
+        <span class="panel-title">Quick Send</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text3);">Powered by Circle App Kit</span>
+      </div>
+      <div class="panel-body">
+        <p style="font-size:12px;color:var(--text3);margin-bottom:1rem;line-height:1.6;">
+          Send USDC directly to any wallet address on Arc Testnet — no corridor, no memo, no custom contract. This uses Circle's <code style="font-family:var(--mono);">@circle-fin/app-kit</code> <strong>Send</strong> capability directly.
+        </p>
+        <div class="form-row">
+          <label class="form-label" for="akToAddress">Recipient address</label>
+          <input class="form-input" type="text" id="akToAddress" placeholder="0x..." />
+        </div>
+        <div class="form-row">
+          <label class="form-label" for="akAmount">Amount</label>
+          <div class="input-wrap">
+            <input class="form-input" type="number" id="akAmount" value="1.00" min="0.01" step="0.01" style="padding-right:54px;" />
+            <span class="input-suffix">USDC</span>
+          </div>
+        </div>
+        <div style="display:flex; gap:8px;">
+          <button class="send-btn" id="akEstimateBtn" onclick="estimateAppKitSend()" style="background:#fff;color:var(--accent);border:1px solid var(--border);">Estimate</button>
+          <button class="send-btn" id="akSendBtn" onclick="sendViaAppKit()">Send via App Kit →</button>
+        </div>
+        <div id="akStatusBox"></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="right-col">
+
+    <!-- CONTRACT INFO -->
+    <div class="panel" id="contractSection">
+      <div class="panel-header">
+        <div class="panel-icon">📋</div>
+        <span class="panel-title">Contract details</span>
+        <span class="badge-verified" style="margin-left:auto;">✓ Verified</span>
+      </div>
+      <div class="panel-body">
+        <div class="info-tr">
+          <span class="info-key">Contract address</span>
+          <span class="info-val mono">0x5FeD...2107<button class="copy-btn" onclick="copyAddr()">copy</button></span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Network</span>
+          <span class="info-val">Arc Testnet</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Chain ID</span>
+          <span class="info-val mono">5042002</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">USDC token</span>
+          <span class="info-val mono">0x3600...0000</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Deployed by</span>
+          <span class="info-val green">Teerast</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Explorer</span>
+          <a href="https://testnet.arcscan.app/address/0x5FeD5f971dE23683D1544857DC2F238962822107" target="_blank" style="font-size:12px;color:var(--accent);">View on ArcScan ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- TX HISTORY -->
+    <div class="panel" id="historySection">
+      <div class="panel-header">
+        <div class="panel-icon">📜</div>
+        <span class="panel-title">Recent transfers</span>
+        <span style="margin-left:auto;font-size:11px;color:var(--text3);" id="txCount">—</span>
+      </div>
+      <div class="panel-body" style="padding:0 1.25rem;">
+        <div id="txList"><div class="tx-empty">Connect wallet to load your transfer history.</div></div>
+      </div>
+    </div>
+
+    <!-- ARC INFO -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-icon">⬡</div>
+        <span class="panel-title">Why Arc Testnet?</span>
+      </div>
+      <div class="panel-body">
+        <div class="info-tr">
+          <span class="info-key">Gas cost</span>
+          <span class="info-val green">~$0.001 per TX</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Block time</span>
+          <span class="info-val">~0.5 seconds</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Native token</span>
+          <span class="info-val">USDC (by Circle)</span>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Explorer</span>
+          <a href="https://testnet.arcscan.app" target="_blank" style="font-size:12px;color:var(--accent);">testnet.arcscan.app ↗</a>
+        </div>
+        <div class="info-tr">
+          <span class="info-key">Faucet</span>
+          <a href="https://faucet.circle.com" target="_blank" style="font-size:12px;color:var(--accent);">faucet.circle.com ↗</a>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<footer>
+  <div style="margin-bottom:6px;">
+    TeerPay · Cross-border USDC Remittance · Built on <a href="https://arc.network" target="_blank">Arc Testnet</a>
+  </div>
+  <div style="margin-bottom:8px;">
+    Contract: <a href="https://testnet.arcscan.app/address/0x5FeD5f971dE23683D1544857DC2F238962822107" target="_blank">0x5FeD5f971dE23683D1544857DC2F238962822107</a>
+    · by <strong style="color:var(--text2);">Teerast</strong>
+    · <a href="https://github.com/Madaprtma/teerpay-web" target="_blank">GitHub</a>
+  </div>
+  <div style="display:inline-flex;align-items:center;gap:6px;background:#fff3cd;color:#856404;border:1px solid #ffc107;padding:4px 14px;border-radius:20px;font-size:11px;font-weight:500;">
+    ⚠️ Testnet only — no real funds
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
+<!-- Circle App Kit — Quick Send -->
+<script type="module">
+  import { AppKit } from 'https://esm.sh/@circle-fin/app-kit';
+  import { createViemAdapterFromProvider } from 'https://esm.sh/@circle-fin/adapter-viem-v2';
+
+  const kit = new AppKit();
+  let akAdapter = null;
+
+  async function getAppKitAdapter() {
+    if (!window.ethereum) throw new Error('MetaMask not found. Please install MetaMask.');
+    if (!akAdapter) akAdapter = await createViemAdapterFromProvider({ provider: window.ethereum });
+    return akAdapter;
+  }
+
+  function akShowStatus(type, msg) {
+    const b = document.getElementById('akStatusBox');
+    b.className = type; b.innerHTML = msg; b.style.display = 'block';
+  }
+
+  window.estimateAppKitSend = async function () {
+    const to     = document.getElementById('akToAddress').value.trim();
+    const amount = document.getElementById('akAmount').value;
+    if (!to)     { akShowStatus('error', 'Enter a recipient address first.'); return; }
+    if (!amount || parseFloat(amount) <= 0) { akShowStatus('error', 'Enter a valid amount.'); return; }
+    try {
+      akShowStatus('info', '⏳ Estimating via App Kit...');
+      const adapter  = await getAppKitAdapter();
+      const estimate = await kit.estimateSend({
+        from: { adapter, chain: 'Arc_Testnet' },
+        to, amount, token: 'USDC',
+      });
+      akShowStatus('info', `Estimated fee: ${estimate?.fee ?? 'n/a'} · You'll send ${amount} USDC to ${to.slice(0,6)}...${to.slice(-4)}`);
+    } catch (e) {
+      akShowStatus('error', '❌ ' + (e?.message || 'Estimate failed').slice(0, 140));
+    }
+  };
+
+  window.sendViaAppKit = async function () {
+    const to     = document.getElementById('akToAddress').value.trim();
+    const amount = document.getElementById('akAmount').value;
+    if (!to)     { akShowStatus('error', 'Enter a recipient address first.'); return; }
+    if (!amount || parseFloat(amount) <= 0) { akShowStatus('error', 'Enter a valid amount.'); return; }
+    const btn = document.getElementById('akSendBtn');
+    btn.disabled = true;
+    try {
+      akShowStatus('info', '⏳ Confirm the transfer in MetaMask...');
+      const adapter = await getAppKitAdapter();
+      const result  = await kit.send({
+        from: { adapter, chain: 'Arc_Testnet' },
+        to, amount, token: 'USDC',
+      });
+      const hash = result?.transactionHash || result?.hash;
+      akShowStatus('success', `✅ ${amount} USDC sent via App Kit!` + (hash ? `<br><a href="${ARC_EXPLORER}/tx/${hash}" target="_blank">View on ArcScan ↗</a>` : ''));
+    } catch (e) {
+      akShowStatus('error', '❌ ' + (e?.message || 'Send failed').slice(0, 140));
+    } finally {
+      btn.disabled = false;
+    }
+  };
+</script>
+<script>
+const ARC_CHAIN_ID  = 5042002;
+const ARC_RPC       = 'https://rpc.testnet.arc.network';
+const ARC_EXPLORER  = 'https://testnet.arcscan.app';
+const USDC_ADDR     = '0x3600000000000000000000000000000000000000';
+const CONTRACT_ADDR = '0x5FeD5f971dE23683D1544857DC2F238962822107';
+const USDC_DEC      = 6;
+
+const CORRIDORS = [
+  { flag:'🇮🇩', country:'Indonesia',   currency:'IDR', address:'0x018fBE6bB41b6bA47AfBC499b60375117A9373ea' },
+  { flag:'🇵🇭', country:'Philippines', currency:'PHP', address:'0xc68cAA6C024c7d844b0195EBE79aCc9820B4a1a4' },
+  { flag:'🇻🇳', country:'Vietnam',     currency:'VND', address:'0xF4E12151430a7D761EF355079f97c7c83AEf512c' },
+  { flag:'🇳🇬', country:'Nigeria',     currency:'NGN', address:'0xD4F8F759B80365966fB137E9D27640B5e379ADf6' },
+  { flag:'🇮🇳', country:'India',       currency:'INR', address:'0x384f05d832fDebE47C1030CC6935AE3a4325eCd0' },
+];
+
+const USDC_ABI = [
+  'function approve(address spender, uint256 amount) returns (bool)',
+  'function allowance(address owner, address spender) view returns (uint256)',
+  'function balanceOf(address account) view returns (uint256)',
+];
+const CONTRACT_ABI = [
+  'function sendRemittance(address recipient, uint256 amount, string country, string currency, string memo)',
+  'function getStats() view returns (uint256 totalVolume, uint256 totalTxCount, uint256 minAmount, uint256 maxAmount, bool paused)',
+  'event RemittanceSent(address indexed sender, address indexed recipient, uint256 amount, string country, string currency, string memo, uint256 timestamp)',
+];
+
+let provider, signer, userAddress;
+let selected = CORRIDORS[0];
+let txHistory = [];
+const readProvider = new ethers.providers.JsonRpcProvider(ARC_RPC); // reused instead of recreated per call
+
+// Retries a call a few times with backoff if the RPC returns 429 (rate limited)
+async function withRetry(fn, retries = 3, delayMs = 800) {
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    try {
+      return await fn();
+    } catch (e) {
+      const is429 = e?.status === 429 || /429|rate limit/i.test(e?.message || '') || /429|rate limit/i.test(e?.error?.message || '');
+      if (is429 && attempt < retries) {
+        await new Promise(r => setTimeout(r, delayMs * Math.pow(2, attempt)));
+        continue;
+      }
+      throw e;
+    }
+  }
+}
+
+window.addEventListener('load', async () => {
+  renderCorridors();
+  loadStats();
+
+  if (window.ethereum) {
+    // Restore session if the wallet is already connected/authorized
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_accounts' });
+      if (accounts.length) await connectWallet();
+    } catch (e) { console.warn(e); }
+
+    // Keep UI in sync with wallet-side changes
+    window.ethereum.on('accountsChanged', (accounts) => {
+      if (!accounts.length) { disconnectWallet(); }
+      else { connectWallet(); }
+    });
+    window.ethereum.on('chainChanged', () => { window.location.reload(); });
+  }
+});
+
+function disconnectWallet() {
+  provider = signer = userAddress = undefined;
+  txHistory = [];
+  document.getElementById('connectBtn').style.display = 'inline-block';
+  document.getElementById('walletInfo').style.display = 'none';
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  btn.textContent = 'Connect wallet to send';
+  renderHistory();
+}
+
+function renderCorridors() {
+  document.getElementById('corridorGrid').innerHTML = CORRIDORS.map((c,i) => `
+    <button class="corridor-btn ${i===0?'active':''}" onclick="selectCorridor(${i})">
+      <span class="corridor-flag">${c.flag}</span>
+      <div class="corridor-info">
+        <div class="corridor-country">${c.country}</div>
+        <div class="corridor-currency">${c.currency}</div>
+      </div>
+    </button>`).join('');
+  updateAddrDisplay();
+}
+
+function selectCorridor(i) {
+  selected = CORRIDORS[i];
+  document.querySelectorAll('.corridor-btn').forEach((el,j) => el.classList.toggle('active', i===j));
+  updateAddrDisplay();
+}
+
+function updateAddrDisplay() {
+  document.getElementById('toAddrDisplay').textContent = selected.address;
+}
+
+async function loadStats() {
+  try {
+    const c = new ethers.Contract(CONTRACT_ADDR, CONTRACT_ABI, readProvider);
+    const s = await withRetry(() => c.getStats());
+    document.getElementById('statTxCount').textContent = s.totalTxCount.toString();
+    document.getElementById('statVolume').textContent  = parseFloat(ethers.utils.formatUnits(s.totalVolume, USDC_DEC)).toFixed(4);
+    if (s.paused) { document.getElementById('statStatus').textContent = 'Paused'; document.getElementById('statStatus').style.color = 'var(--amber)'; }
+  } catch(e) { console.warn(e); }
+}
+
+async function connectWallet() {
+  if (!window.ethereum) { alert('MetaMask not found. Please install MetaMask.'); return; }
+  try {
+    await window.ethereum.request({ method: 'eth_requestAccounts' });
+    try {
+      await window.ethereum.request({ method: 'wallet_switchEthereumChain', params: [{ chainId: '0x' + ARC_CHAIN_ID.toString(16) }] });
+    } catch(e) {
+      if (e.code === 4902) await window.ethereum.request({ method: 'wallet_addEthereumChain', params: [{ chainId: '0x' + ARC_CHAIN_ID.toString(16), chainName: 'Arc Testnet', nativeCurrency: { name: 'USDC', symbol: 'USDC', decimals: USDC_DEC }, rpcUrls: [ARC_RPC], blockExplorerUrls: [ARC_EXPLORER] }] });
+    }
+    provider    = new ethers.providers.Web3Provider(window.ethereum);
+    signer      = provider.getSigner();
+    userAddress = await signer.getAddress();
+    document.getElementById('connectBtn').style.display = 'none';
+    document.getElementById('walletInfo').style.display = 'flex';
+    document.getElementById('walletAddr').textContent = userAddress.slice(0,6)+'...'+userAddress.slice(-4);
+    await refreshBal();
+    await loadHistory();
+    const btn = document.getElementById('sendBtn');
+    btn.disabled = false;
+    btn.textContent = 'Send via TeerPay →';
+    loadStats();
+  } catch(e) { alert('Connection failed: '+e.message); }
+}
+
+async function refreshBal() {
+  if (!signer) return;
+  try {
+    const bal = await withRetry(() => new ethers.Contract(USDC_ADDR, USDC_ABI, provider).balanceOf(userAddress));
+    document.getElementById('walletBal').textContent = parseFloat(ethers.utils.formatUnits(bal, USDC_DEC)).toFixed(2)+' USDC';
+  } catch(e) { console.warn(e); }
+}
+
+async function loadHistory() {
+  const list = document.getElementById('txList');
+  try {
+    const c = new ethers.Contract(CONTRACT_ADDR, CONTRACT_ABI, provider);
+    const latestBlock = await withRetry(() => provider.getBlockNumber());
+    const fromBlock   = Math.max(0, latestBlock - 10000);
+    const events = await withRetry(() => c.queryFilter(c.filters.RemittanceSent(userAddress), fromBlock, latestBlock));
+    txHistory = events.reverse().slice(0,20).map(e => ({
+      country: e.args.country, currency: e.args.currency,
+      amount: ethers.utils.formatUnits(e.args.amount, USDC_DEC),
+      memo: e.args.memo, txHash: e.transactionHash
+    }));
+    renderHistory();
+  } catch(e) {
+    console.warn(e);
+    const rateLimited = e?.status === 429 || /429|rate limit/i.test(e?.message || '');
+    list.innerHTML = rateLimited
+      ? '<div class="tx-empty">RPC is rate-limited right now. Please wait a moment and refresh.</div>'
+      : '<div class="tx-empty">Unable to load transfer history right now. Please refresh and try again.</div>';
+  }
+}
+
+function escapeHtml(str) {
+  return String(str).replace(/[&<>"']/g, (c) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]));
+}
+
+function renderHistory() {
+  const flags = { Indonesia:'🇮🇩', Philippines:'🇵🇭', Vietnam:'🇻🇳', Nigeria:'🇳🇬', India:'🇮🇳' };
+  const list  = document.getElementById('txList');
+  document.getElementById('txCount').textContent = txHistory.length ? txHistory.length+' transfers' : '';
+  if (!txHistory.length) { list.innerHTML = '<div class="tx-empty">No transfers yet. Send your first remittance!</div>'; return; }
+  list.innerHTML = txHistory.map(tx => `
+    <div class="tx-item">
+      <span class="tx-flag">${flags[tx.country]||'🌍'}</span>
+      <div class="tx-mid">
+        <div class="tx-country">${escapeHtml(tx.country)} <span style="color:var(--text3);font-size:11px;font-family:var(--mono);">${escapeHtml(tx.currency)}</span></div>
+        <div class="tx-memo">${escapeHtml(tx.memo || '—')}</div>
+      </div>
+      <div class="tx-right">
+        <div class="tx-amount">${parseFloat(tx.amount).toFixed(4)} USDC</div>
+        <a class="tx-link" href="${ARC_EXPLORER}/tx/${tx.txHash}" target="_blank">view ↗</a>
+      </div>
+    </div>`).join('');
+}
+
+async function sendRemittance() {
+  if (!signer) { alert('Connect wallet first.'); return; }
+  const amount = parseFloat(document.getElementById('amountInput').value);
+  const memo   = document.getElementById('memoInput').value || `TeerPay|${selected.country}|${selected.currency}|${amount}USDC`;
+  if (!amount || amount < 0.01) { showStatus('error','Minimum amount is 0.01 USDC.'); return; }
+  if (amount > 100)             { showStatus('error','Maximum amount is 100 USDC.'); return; }
+  const btn = document.getElementById('sendBtn');
+  btn.disabled = true;
+  try {
+    const amtRaw = ethers.utils.parseUnits(amount.toFixed(6), USDC_DEC);
+    const usdc   = new ethers.Contract(USDC_ADDR, USDC_ABI, signer);
+    const cp     = new ethers.Contract(CONTRACT_ADDR, CONTRACT_ABI, signer);
+    const allow  = await usdc.allowance(userAddress, CONTRACT_ADDR);
+    if (allow.lt(amtRaw)) {
+      showStatus('info','⏳ Step 1/2 — Approve USDC spend (confirm in MetaMask)');
+      await (await usdc.approve(CONTRACT_ADDR, amtRaw.mul(1000))).wait();
+    }
+    showStatus('info','⏳ Step 2/2 — Sending remittance (confirm in MetaMask)');
+    const tx      = await cp.sendRemittance(selected.address, amtRaw, selected.country, selected.currency, memo);
+    showStatus('info','⏳ Waiting for on-chain confirmation...');
+    const receipt = await tx.wait();
+    showStatus('success',`✅ ${amount} USDC sent to ${selected.country}!<br><a href="${ARC_EXPLORER}/tx/${receipt.transactionHash}" target="_blank">View on ArcScan ↗</a>`);
+    await refreshBal(); await loadHistory(); await loadStats();
+  } catch(e) {
+    showStatus('error','❌ '+(e?.reason||e?.message||'Transaction failed').slice(0,140));
+  } finally { btn.disabled = false; btn.textContent = 'Send via TeerPay →'; }
+}
+
+function showStatus(type, msg) {
+  const b = document.getElementById('statusBox');
+  b.className = type; b.innerHTML = msg; b.style.display = 'block';
+}
+function copyAddr() { navigator.clipboard.writeText(CONTRACT_ADDR); alert('Contract address copied!'); }
+function scrollToHistory() { document.getElementById('historySection').scrollIntoView({behavior:'smooth'}); }
+function scrollToContract() { document.getElementById('contractSection').scrollIntoView({behavior:'smooth'}); }
+</script>
+</body>
+</html>
