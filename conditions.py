@@ -32,13 +32,29 @@ DEFAULT_FX_THRESHOLDS = {
     "India":       {"currency": "INR", "min_rate": 83},     # kirim jika 1 USD >= 83 INR
 }
 
-def get_fx_rate(currency: str) -> float:
+def get_fx_rate(currency: str, rpc_url: str = None) -> float:
     """
-    Ambil rate USD/{currency} dari API publik (exchangerate-api).
-    Fallback ke rate simulasi jika API tidak tersedia.
+    Ambil FX rate USD/{currency}.
     
-    Analogi: fetch_ticker() di trading bot
+    Priority:
+      1. StableFX on-chain (FxEscrow Arc Testnet) — sumber primer
+      2. exchangerate-api (API eksternal) — fallback
+      3. Simulated rate — last resort
+    
+    Analogi: primary exchange feed → backup feed → hardcoded price
     """
+    # ── 1. StableFX on-chain (primer) ──
+    if rpc_url:
+        try:
+            from stablefx import get_eurc_based_fx_rate
+            rate = get_eurc_based_fx_rate(currency, rpc_url)
+            if rate and rate > 0:
+                log.info(f"  FX Rate (StableFX on-chain): 1 USD = {rate:.2f} {currency}")
+                return float(rate)
+        except Exception as e:
+            log.warning(f"  StableFX fallback to API: {e}")
+
+    # ── 2. API eksternal (fallback) ──
     try:
         url = f"https://api.exchangerate-api.com/v4/latest/USD"
         req = urllib.request.Request(url, headers={"User-Agent": "TeerPayBot/1.0"})
@@ -46,12 +62,12 @@ def get_fx_rate(currency: str) -> float:
             data = json.loads(resp.read())
             rate = data["rates"].get(currency)
             if rate:
-                log.info(f"  FX Rate fetched: 1 USD = {rate} {currency}")
+                log.info(f"  FX Rate (API): 1 USD = {rate} {currency}")
                 return float(rate)
     except Exception as e:
         log.warning(f"  FX API error ({e}), using simulated rate")
 
-    # Simulasi rate (fallback) — untuk demo/testnet
+    # ── 3. Simulated rate (last resort) ──
     simulated = {
         "IDR": 15850.0, "PHP": 56.5, "VND": 25100.0,
         "NGN": 1620.0,  "INR": 84.2,
@@ -60,18 +76,12 @@ def get_fx_rate(currency: str) -> float:
     log.info(f"  FX Rate (simulated): 1 USD = {rate} {currency}")
     return rate
 
-
-def check_fx_condition(country: str, thresholds: dict = None) -> dict:
-    """
-    Cek apakah rate FX memenuhi threshold.
-    Returns: dict dengan status dan detail
-    """
-    thresholds = thresholds or DEFAULT_FX_THRESHOLDS
-    config     = thresholds.get(country, {})
-    currency   = config.get("currency", "USD")
-    min_rate   = config.get("min_rate", 0)
-
-    current_rate = get_fx_rate(currency)
+def check_fx_condition(country: str, thresholds: dict = None, rpc_url: str = None) -> dict:
+    thresholds   = thresholds or DEFAULT_FX_THRESHOLDS
+    config       = thresholds.get(country, {})
+    currency     = config.get("currency", "USD")
+    min_rate     = config.get("min_rate", 0)
+    current_rate = get_fx_rate(currency, rpc_url=rpc_url)  # ← tambah rpc_url
     passed       = current_rate >= min_rate
 
     return {
@@ -174,6 +184,7 @@ def evaluate_all_conditions(
     allowed_days: list = None,
     allowed_hours: tuple = (8, 22),
     min_reserve: float = 1.0,
+    rpc_url: str = None,
 ) -> dict:
     """
     Evaluasi semua kondisi sekaligus.
@@ -184,7 +195,7 @@ def evaluate_all_conditions(
     """
     log.info(f"  Evaluating conditions for {country}...")
 
-    fx_result       = check_fx_condition(country, fx_thresholds)
+    fx_result       = check_fx_condition(country, fx_thresholds, rpc_url=rpc_url)
     schedule_result = check_schedule_condition(allowed_days, allowed_hours)
     balance_result  = check_balance_condition(current_balance, amount_to_send, min_reserve)
 
